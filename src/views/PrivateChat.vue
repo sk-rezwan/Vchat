@@ -91,7 +91,7 @@
         </div>
         <div class="mesgs">
           <div class="msg_history">
-            <div v-for = "message in messages" class="incoming_msg">
+            <div v-for="message in messages" class="incoming_msg">
               <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
               <div class="received_msg">
                 <div class="received_withd_msg">
@@ -122,6 +122,8 @@
 </template>
 
 <script>
+import firebase from 'firebase'
+
 export default {
   name: 'PrivateChat',
   data(){
@@ -143,6 +145,7 @@ export default {
       fetchMessages(){
         db.collection("chat").orderBy("createdAt").onSnapshot((querySnapshot) => {
           let allMessages = [];
+          //read data
           querySnapshot.forEach((doc) => {
              allMessages.push(doc.data()) 
           })
@@ -152,7 +155,18 @@ export default {
   },
   created(){
         this.fetchMessages();
-      }
+      },
+  beforeRouteEnter(to,from,next){
+    next(vm=>{
+      firebase.auth().onAuthStateChanged(user=>{
+        if(user){
+          next();
+        }else{
+          vm.$router.push('/login')
+        }
+      })
+    })
+  }
 }
 </script>
 
